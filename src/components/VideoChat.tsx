@@ -81,6 +81,15 @@ export default function VideoChat() {
     viewRef.current = view;
   }, [view]);
 
+  useEffect(() => {
+    const el = localVideoRef.current;
+    const stream = streamRef.current;
+    if (el && stream && el.srcObject !== stream) {
+      el.srcObject = stream;
+      el.play().catch(() => {});
+    }
+  }, [view]);
+
   function flashNotice(msg: string) {
     setNotice(msg);
     if (noticeTimerRef.current !== null) {
