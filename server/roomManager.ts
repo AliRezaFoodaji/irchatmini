@@ -2,11 +2,17 @@ import { randomUUID } from "node:crypto";
 import { WebSocket } from "ws";
 import type { ServerMessage, Signal } from "../shared/protocol";
 
+/** How long a user waits for a "fresh" match before we accept the previous
+ * partner (or anyone), so two users sharing a server are never stuck forever. */
+export const MATCH_TIMEOUT_MS = Number(process.env.SIGNAL_MATCH_TIMEOUT_MS ?? 8_000);
+
 export interface Client {
   id: string;
   ws: WebSocket;
   roomId: string | null;
   avoidId?: string;
+  /** ms timestamp of entering the waiting queue */
+  waitingSince?: number;
 }
 
 interface Room {
@@ -18,6 +24,15 @@ export class RoomManager {
   private waiting: Client[] = [];
   private rooms = new Map<string, Room>();
   private clients = new Map<string, Client>();
+
+  constructor() {
+    // Re-evaluate the queue periodically so the match timeout kicks in even
+    // when no new message arrives (e.g. only the two previous partners are
+    // online and neither triggers another find/next).
+    setInterval(() => {
+      this.tryMatch();
+    }, 1_000);
+  }
 
   add(ws: WebSocket): Client {
     const client: Client = { id: randomUUID(), ws, roomId: null };
@@ -35,7 +50,7 @@ export class RoomManager {
 
   find(client: Client): void {
     if (client.roomId || this.isWaiting(client)) return;
-    this.waiting.push(client);
+    this.enterWaiting(client);
     this.tryMatch();
   }
 
@@ -44,7 +59,7 @@ export class RoomManager {
       this.tearDownRoom(client);
     }
     if (this.isWaiting(client)) return;
-    this.waiting.push(client);
+    this.enterWaiting(client);
     this.tryMatch();
   }
 
@@ -68,15 +83,30 @@ export class RoomManager {
     this.waiting = this.waiting.filter((c) => c.id !== client.id);
   }
 
+  private enterWaiting(client: Client): void {
+    client.waitingSince = Date.now();
+    this.waiting.push(client);
+  }
+
   private tryMatch(): void {
     while (this.waiting.length >= 2) {
       const a = this.waiting.shift()!;
 
       if (a.ws.readyState !== WebSocket.OPEN) continue;
 
-      const idx = this.waiting.findIndex((c) => c.id !== a.avoidId);
+      const timedOut =
+        a.waitingSince !== undefined &&
+        Date.now() - a.waitingSince >= MATCH_TIMEOUT_MS;
+
+      let idx = this.waiting.findIndex((c) => c.id !== a.avoidId);
+      if (idx === -1 && timedOut) {
+        // No fresh partner after the timeout — take anyone, even the
+        // previous partner, so users never get stuck waiting forever.
+        idx = 0;
+      }
+
       if (idx === -1) {
-        // Only the previous partner is available; don't rematch them.
+        // Only the previous partner is available; don't rematch them yet.
         this.waiting.push(a);
         break;
       }
@@ -119,7 +149,7 @@ export class RoomManager {
 
     if (peer.ws.readyState === WebSocket.OPEN) {
       this.send(peer, { type: "peer-left", reason: "disconnect" });
-      this.waiting.push(peer);
+      this.enterWaiting(peer);
     }
 
     this.tryMatch();
