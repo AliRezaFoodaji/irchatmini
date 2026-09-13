@@ -40,4 +40,4 @@ COPY --from=build /app/server-dist ./server-dist
 
 EXPOSE 3000 3001
 # Runs both the Next.js app (3000) and the signaling server (3001).
-CMD ["sh", "-c", "node server.js & node server-dist/index.js"]
+CMD ["sh", "-c", "node server.js & node server-dist/server/index.js"]

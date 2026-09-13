@@ -3,11 +3,19 @@ services:
     build:
       context: .
       args:
-        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:3001}
+        # Absolute override for exotic setups; normally leave empty and use
+        # NEXT_PUBLIC_WS_PATH so the WS URL is derived from the page origin.
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-}
+        NEXT_PUBLIC_WS_PATH: ${NEXT_PUBLIC_WS_PATH:-/ws-signal}
         NEXT_PUBLIC_ICE_SERVERS: ${NEXT_PUBLIC_ICE_SERVERS:-}
+        # Sub-path on the domain, e.g. /p/irchatmini. Empty = domain root.
+        TARGET_PATH: ${TARGET_PATH:-}
     restart: unless-stopped
+    # Host ports deliberately non-standard so the containers never clash with
+    # an existing app on the VPS (e.g. the main alirezafoodaji.ir backend on 3001).
     ports:
-      - "3000:3000"
+      - "3123:3000"   # Next.js web app
+      - "3124:3001"   # WebSocket signaling server
     healthcheck:
       test:
         - CMD-SHELL
@@ -19,8 +27,10 @@ services:
 
   # TURN/STUN server — required so users behind NAT can connect.
   # Uses host networking because WebRTC relays need a wide UDP port range.
+  # Enabled explicitly:  docker compose --profile turn up -d
   coturn:
     image: coturn/coturn:4.6.2
+    profiles: ["turn"]
     network_mode: host
     restart: unless-stopped
     command: ["-c", "/etc/coturn/turnserver.conf"]
