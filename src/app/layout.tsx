@@ -3,9 +3,9 @@ import "@fontsource-variable/vazirmatn";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "هم‌صحبت | چت ویدیویی تصادفی",
+  title: "مینی چت ایرانی | چت ویدیویی تصادفی",
   description:
-    "چت ویدیویی تصادفی با غریبه‌ها — دوربین و میکروفون را روشن کن و گفت‌وگو را شروع کن.",
+    "مینی چت ایرانی — چت ویدیویی تصادفی با غریبه‌ها. دوربین و میکروفون را روشن کن، بدون ثبت‌نام و رایگان به یک هم‌صحبت تصادفی وصل شو.",
 };
 
 export const viewport: Viewport = {

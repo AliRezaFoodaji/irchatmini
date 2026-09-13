@@ -7,6 +7,7 @@ import { SignalingClient } from "@/lib/signaling";
 import type { ConnectionState } from "@/lib/signaling";
 import { getIceServers } from "@/lib/config";
 import {
+  ArrowLeftIcon,
   CamOffIcon,
   CamOnIcon,
   LogoIcon,
@@ -322,14 +323,15 @@ export default function VideoChat() {
 
       {view !== "call" && (
         <header className="relative z-10 flex items-center justify-between px-5 py-4 sm:px-8">
+          <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
           <div className="flex items-center gap-2.5">
             <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-zinc-950 shadow-lg shadow-emerald-500/30">
               <LogoIcon className="size-5" />
             </div>
             <div className="leading-tight">
-              <p className="text-base font-extrabold tracking-tight">هم‌صحبت</p>
+              <p className="text-base font-extrabold tracking-tight">مینی چت ایرانی</p>
               <p className="text-[10px] font-medium text-zinc-500" dir="ltr">
-                HAMSABHAT
+                MINI CHAT
               </p>
             </div>
           </div>
@@ -345,7 +347,7 @@ export default function VideoChat() {
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 pb-10">
         {view === "home" && (
-          <HomeStage onStart={() => void start()} />
+          <HomeStage online={online} onStart={() => void start()} />
         )}
 
         {(view === "starting" || view === "searching") && (
@@ -398,42 +400,76 @@ function BackgroundDecor() {
   );
 }
 
-function HomeStage({ onStart }: { onStart: () => void }) {
+function HomeStage({
+  online,
+  onStart,
+}: {
+  online: number;
+  onStart: () => void;
+}) {
   return (
     <div className="flex w-full max-w-2xl flex-col items-center text-center">
-      <div className="mb-6 flex size-20 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 text-zinc-950 shadow-2xl shadow-emerald-500/30">
-        <LogoIcon className="size-10" />
+      <div className="relative mb-7 flex size-24 items-center justify-center">
+        <span className="anim-ring absolute inset-0 rounded-[1.9rem] border-2 border-emerald-400/30" />
+        <span className="anim-ring-delayed absolute inset-0 rounded-[1.9rem] border-2 border-cyan-400/20" />
+        <div className="relative flex size-20 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 text-zinc-950 shadow-2xl shadow-emerald-500/40">
+          <LogoIcon className="size-10" />
+        </div>
       </div>
 
-      <p className="mb-3 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-emerald-300 backdrop-blur">
+      <p className="mb-4 flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-emerald-300 backdrop-blur">
+        <span className="relative flex size-2">
+          <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+          <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+        </span>
         چت ویدیویی تصادفی برای فارسی‌زبان‌ها
       </p>
 
-      <h1 className="mb-4 bg-gradient-to-l from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-4xl font-black leading-tight text-transparent sm:text-5xl">
-        با یک غریبه
-        <br />
-        آشنا شو
+      <h1 className="mb-4 bg-gradient-to-l from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-4xl font-black leading-tight text-transparent sm:text-6xl">
+        با یک غریبه آشنا شو
       </h1>
 
-      <p className="mb-10 max-w-md leading-8 text-zinc-400">
-        دکمه را بزن، دوربین و میکروفونت روشن می‌شود و به یک غریبه‌ی تصادفی
-        وصل می‌شوی. بدون ثبت‌نام، رایگان و ناشناس.
+      <p className="mb-8 max-w-md leading-8 text-zinc-400">
+        دکمه را بزن؛ دوربین و میکروفونت روشن می‌شود و در چند ثانیه به یک
+        غریبه‌ی تصادفی وصل می‌شوی. بدون ثبت‌نام، رایگان و ناشناس.
       </p>
+
+      <div className="mb-8 flex flex-wrap items-center justify-center gap-2 text-[11px] font-semibold sm:text-xs">
+        <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3.5 py-1.5 text-emerald-300">
+          <span className="relative flex size-1.5">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+            <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
+          </span>
+          {online} نفر همین حالا آنلاین‌اند
+        </span>
+        <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-zinc-300 backdrop-blur">
+          <ShieldIcon className="size-3.5" />
+          اتصال مستقیم
+        </span>
+        <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-zinc-300 backdrop-blur">
+          <SparkIcon className="size-3.5" />
+          بدون ثبت‌نام
+        </span>
+      </div>
 
       <button
         onClick={onStart}
-        className="group relative mb-12 w-full max-w-sm rounded-2xl bg-gradient-to-l from-emerald-500 to-teal-500 px-8 py-4.5 text-lg font-extrabold text-zinc-950 shadow-xl shadow-emerald-500/30 transition hover:shadow-emerald-500/50 hover:brightness-110 active:scale-[0.97]"
+        className="group relative mb-12 w-full max-w-sm overflow-hidden rounded-2xl bg-gradient-to-l from-emerald-500 to-teal-500 px-8 py-4 text-lg font-extrabold text-zinc-950 shadow-xl shadow-emerald-500/30 transition hover:shadow-emerald-500/50 hover:brightness-110 active:scale-[0.97]"
       >
-        شروع گفت‌وگو
+        <span className="anim-shine pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-l from-transparent via-white/45 to-transparent" />
+        <span className="relative flex items-center justify-center gap-2">
+          شروع گفت‌وگو
+          <ArrowLeftIcon className="size-5 transition group-hover:-translate-x-1" />
+        </span>
       </button>
 
       <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
         {FEATURES.map((f) => (
           <div
             key={f.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-start backdrop-blur"
+            className="group rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-start backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-emerald-400/30 hover:bg-white/[0.05]"
           >
-            <div className="mb-3 flex size-9 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300">
+            <div className="mb-3 flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 text-emerald-300 transition group-hover:from-emerald-500/30 group-hover:to-cyan-500/30">
               <f.icon className="size-5" />
             </div>
             <p className="mb-1 text-sm font-bold">{f.title}</p>
@@ -443,9 +479,9 @@ function HomeStage({ onStart }: { onStart: () => void }) {
       </div>
 
       <p className="mt-8 max-w-md text-[11px] leading-6 text-zinc-600">
-        بهتر است از گوگل‌کروم یا فایرفاکس استفاده کنید. اتصال مستقیم و زنده است؛
-        هیچ‌چیز ضبط یا روی سرور ذخیره نمی‌شود. برای اتصال از دستگاه‌های مختلف،
-        به اتصال پایدار اینترنت نیاز دارید.
+        پیشنهاد می‌کنیم از گوگل‌کروم یا فایرفاکس استفاده کنید. اتصال مستقیم و
+        زنده است؛ هیچ‌چیز ضبط یا روی سرور ذخیره نمی‌شود. برای اتصال از
+        دستگاه‌های مختلف به اینترنت پایداری نیاز دارید.
       </p>
     </div>
   );
@@ -464,19 +500,40 @@ function SearchingStage({
 }) {
   return (
     <div className="flex w-full max-w-sm flex-col items-center text-center">
-      <div className="relative mb-8 flex size-40 items-center justify-center">
-        <span className="anim-ring absolute inset-0 m-auto size-full rounded-full border-2 border-emerald-400/40" />
-        <span className="anim-ring-delayed absolute inset-0 m-auto size-full rounded-full border-2 border-emerald-400/40" />
-        <div className="relative flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-zinc-950 shadow-2xl shadow-emerald-500/40">
+      <div className="relative mb-8 flex size-44 items-center justify-center">
+        <div
+          className="anim-spin-slow absolute inset-0 rounded-full"
+          style={{
+            background:
+              "conic-gradient(from 0deg, transparent 0deg, rgba(16,185,129,0.7) 110deg, transparent 260deg)",
+            WebkitMask:
+              "radial-gradient(farthest-side, transparent calc(100% - 4px), black calc(100% - 4px))",
+            mask: "radial-gradient(farthest-side, transparent calc(100% - 4px), black calc(100% - 4px))",
+          }}
+        />
+        <span className="anim-ring absolute inset-0 m-auto size-40 rounded-full border-2 border-emerald-400/30" />
+        <span className="anim-ring-delayed absolute inset-0 m-auto size-40 rounded-full border-2 border-cyan-400/20" />
+        <div className="anim-pulse-soft relative flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-zinc-950 shadow-2xl shadow-emerald-500/40">
           <UsersIcon className="size-10" />
         </div>
       </div>
 
-      <p className="mb-2 text-lg font-bold">
+      <p className="mb-2 text-xl font-bold">
         {view === "starting"
           ? "در حال آماده‌سازی دوربین و میکروفون..."
           : "در جستجوی هم‌صحبت تصادفی..."}
       </p>
+      <span className="mb-3 flex gap-1.5" aria-hidden>
+        <span className="anim-typing-dot size-2 rounded-full bg-emerald-400" />
+        <span
+          className="anim-typing-dot size-2 rounded-full bg-emerald-400"
+          style={{ animationDelay: "0.15s" }}
+        />
+        <span
+          className="anim-typing-dot size-2 rounded-full bg-emerald-400"
+          style={{ animationDelay: "0.3s" }}
+        />
+      </span>
       <p className="mb-8 text-sm text-zinc-500">
         {view === "starting"
           ? "لطفاً دسترسی دوربین و میکروفون را در مرورگر تأیید کنید."
@@ -484,19 +541,25 @@ function SearchingStage({
       </p>
 
       {view === "searching" && (
-        <div className="relative mb-8 aspect-video w-56 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl">
-          <video
-            ref={localVideoRef}
-            playsInline
-            autoPlay
-            muted
-            className="-scale-x-100 h-full w-full object-cover"
-          />
-          {!camOn && (
-            <div className="absolute inset-0 flex items-center justify-center bg-zinc-950 text-sm text-zinc-500">
-              دوربین خاموش است
-            </div>
-          )}
+        <div className="relative mb-8">
+          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-emerald-500/25 via-transparent to-cyan-500/25 blur-sm" />
+          <div className="relative aspect-video w-56 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl">
+            <video
+              ref={localVideoRef}
+              playsInline
+              autoPlay
+              muted
+              className="-scale-x-100 h-full w-full object-cover"
+            />
+            {!camOn && (
+              <div className="absolute inset-0 flex items-center justify-center bg-zinc-950 text-xs text-zinc-500">
+                دوربین خاموش است
+              </div>
+            )}
+            <span className="absolute right-2 top-2 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-emerald-300 backdrop-blur">
+              پیش‌نمایش شما
+            </span>
+          </div>
         </div>
       )}
 
@@ -512,8 +575,8 @@ function SearchingStage({
 
 function ErrorStage({ error, onBack }: { error: string; onBack: () => void }) {
   return (
-    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-900/80 p-8 text-center shadow-2xl backdrop-blur">
-      <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-red-500/15 text-red-400">
+    <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-zinc-900/80 p-8 text-center shadow-2xl shadow-red-500/10 backdrop-blur">
+      <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-red-500/15 text-red-400 shadow-lg shadow-red-500/20">
         <StopIcon className="size-7" />
       </div>
       <p className="mb-2 text-xl font-bold text-red-400">مشکلی پیش آمد</p>
@@ -565,10 +628,11 @@ function CallScreen({
 
       {!remoteReady && (
         <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="absolute size-80 rounded-full bg-emerald-500/10 blur-3xl" />
           <div className="relative flex size-28 items-center justify-center">
             <span className="anim-ring absolute inset-0 rounded-full border-2 border-emerald-400/40" />
-            {/* pulsing */}
-            <div className="relative flex size-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+            <span className="anim-ring-delayed absolute inset-0 rounded-full border-2 border-cyan-400/20" />
+            <div className="anim-pulse-soft relative flex size-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
               <UsersIcon className="size-8" />
             </div>
           </div>
@@ -579,7 +643,7 @@ function CallScreen({
       )}
 
       <div className="absolute bottom-24 right-3 w-32 sm:bottom-28 sm:w-44">
-        <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/60">
+        <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/15 bg-zinc-900 shadow-2xl shadow-black/60 ring-1 ring-white/10">
           <video
             ref={localVideoRef}
             playsInline
@@ -616,8 +680,8 @@ function CallScreen({
         <div className="flex items-center gap-2 rounded-3xl border border-white/10 bg-zinc-950/70 p-2.5 shadow-2xl shadow-black/60 backdrop-blur sm:gap-3">
           <ControlButton
             label={micOn ? "میکروفون" : "بی‌صدا"}
-            active={micOn}
-            danger={!micOn}
+            on={micOn}
+            muted={!micOn}
             onClick={onToggleMic}
           >
             {micOn ? (
@@ -628,8 +692,8 @@ function CallScreen({
           </ControlButton>
           <ControlButton
             label={camOn ? "دوربین" : "خاموش"}
-            active={camOn}
-            danger={!camOn}
+            on={camOn}
+            muted={!camOn}
             onClick={onToggleCam}
           >
             {camOn ? (
@@ -641,7 +705,7 @@ function CallScreen({
           <span className="h-8 w-px bg-white/10" />
           <ControlButton
             label="بعدی"
-            active={false}
+            on={false}
             onClick={onNext}
             className="bg-red-500 text-white hover:bg-red-400"
           >
@@ -649,7 +713,7 @@ function CallScreen({
           </ControlButton>
           <ControlButton
             label="پایان"
-            active={false}
+            on={false}
             onClick={onEnd}
             className="bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
           >
@@ -663,15 +727,15 @@ function CallScreen({
 
 function ControlButton({
   label,
-  active,
-  danger,
+  on,
+  muted,
   onClick,
   className = "",
   children,
 }: {
   label: string;
-  active: boolean;
-  danger?: boolean;
+  on: boolean;
+  muted?: boolean;
   onClick: () => void;
   className?: string;
   children: ReactNode;
@@ -681,10 +745,10 @@ function ControlButton({
       onClick={onClick}
       className={`flex min-w-16 flex-col items-center gap-1.5 rounded-2xl px-3.5 py-3 text-[11px] font-semibold transition active:scale-95 ${
         className ||
-        (active
-          ? "bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
-          : danger
-            ? "bg-red-500/90 text-white hover:bg-red-400"
+        (muted
+          ? "bg-amber-500/85 text-zinc-950 shadow-lg shadow-amber-500/20 hover:bg-amber-400"
+          : on
+            ? "bg-emerald-500/90 text-zinc-950 shadow-lg shadow-emerald-500/25 hover:bg-emerald-400"
             : "bg-zinc-800 text-zinc-100 hover:bg-zinc-700")
       }`}
     >
