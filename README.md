@@ -100,12 +100,17 @@ NEXT_PUBLIC_ICE_SERVERS=
 docker compose up -d --build
 ```
 
-### ۴. اتصال Nginx — فقط یک فایل در conf.d
-این کار سرور اصلی را تغییر نمی‌دهد؛ فقط لوکیشن زیرمسیر را اضافه می‌کند:
+### ۴. اتصال Nginx — فقط زیرمسیر اضافه می‌شود (سایت اصلی دست نمی‌خورد)
+`location` فقط داخل `server{}` معتبر است؛ فایل را در `snippets/` بگذارید و یک خط include داخل server block سایت اصلی اضافه کنید:
+
 ```bash
-sudo cp deploy/nginx-irchatmini.conf /etc/nginx/conf.d/irchatmini.conf
+sudo cp deploy/nginx-irchatmini.conf /etc/nginx/snippets/irchatmini-locations.conf
+# سپس در /etc/nginx/sites-enabled/<siteیاصلی> (بعد از خط server_name داخل بلاک 443):
+#   include /etc/nginx/snippets/irchatmini-locations.conf;
 sudo nginx -t && sudo systemctl reload nginx
 ```
+> نکته: هرگز فایل را در `conf.d/` نگذارید — nginx آن را در سطح http خودکار include می‌کند و `location` آنجا مجاز نیست.
+
 حالا `https://alirezafoodaji.ir/p/irchatmini` در دسترس است (SSL اصلی سایت کافی است). WebSocket هم از `wss://alirezafoodaji.ir/p/irchatmini/ws-signal` عبور می‌کند.
 
 > برای اتصال بین دو شبکهٔ متفاوت (مثلاً گوشی موبایل و PC خانه) TURN لازم است:
